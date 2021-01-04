@@ -3,14 +3,14 @@ import json
 from server import app, CORS, jsonify, request
 
 CORS(app)
-resource_path = "server/resources"
+resources_path = "server/resources"
 
 
 def load_team_models(team_id):
     classifier = pickle.load(
-        open(f"{resource_path}/models/classifiers/{team_id}.pickle", 'rb'))
+        open(f"{resources_path}/models/classifiers/{team_id}.pickle", 'rb'))
     encoder = pickle.load(
-        open(f"{resource_path}/models/encoders/{team_id}.pickle", 'rb'))
+        open(f"{resources_path}/models/encoders/{team_id}.pickle", 'rb'))
     return classifier, encoder
 
 
