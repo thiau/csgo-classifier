@@ -1,18 +1,33 @@
+import os
 import json
 import pickle
 import pandas as pd
 from server.helpers.classifier import Classifier
 
-resource_path = "server/resources"
+# Base folders path
+resources_path = "server/resources"
+models_path = "server/resources/models"
 
+# Folders path
+datasets_path = f"{resources_path}/datasets"
+encoders_path = f"{models_path}/encoders"
+classifiers_path = f"{models_path}/classifiers"
+team_data_path = f"{models_path}/team_data"
+
+
+def create_folders():
+    os.makedirs(os.path.dirname(f"{datasets_path}/"), exist_ok=True)
+    os.makedirs(os.path.dirname(f"{encoders_path}/"), exist_ok=True)
+    os.makedirs(os.path.dirname(f"{classifiers_path}/"), exist_ok=True)
+    os.makedirs(os.path.dirname(f"{team_data_path}/"), exist_ok=True)
 
 def load_resources():
     data = None
-    with open(f"{resource_path}/datasets/matches_2019_2020.json") as json_file:
+    with open(f"{datasets_path}/matches.json") as json_file:
         data = json.load(json_file)
 
     teams = None
-    with open(f"{resource_path}/datasets/ranking.json") as json_file:
+    with open(f"{datasets_path}/ranking.json") as json_file:
         teams = json.load(json_file)
 
     return data, teams
@@ -21,7 +36,7 @@ def load_resources():
 def generate_csv_from_dict(data: dict, file_name: str):
     dataframe = pd.DataFrame(data)
     dataframe.to_csv(
-        f"{resource_path}/models/team_data/{file_name}.csv",
+        f"{team_data_path}/{file_name}.csv",
         sep=";",
         index=False)
 
@@ -58,6 +73,7 @@ def get_team_data(team_id, data):
 
 
 def generate_models():
+    create_folders()
     data, teams = load_resources()
 
     for team in teams:
@@ -81,6 +97,6 @@ def generate_models():
 
         file_name = f"{team_id}.pickle"
         pickle.dump(classifier_model,
-                    open(f"{resource_path}/models/classifiers/{file_name}", 'wb'))
+                    open(f"{models_path}/classifiers/{file_name}", 'wb'))
         pickle.dump(encoder_model,
-                    open(f"{resource_path}/models/encoders/{file_name}", 'wb'))
+                    open(f"{models_path}/encoders/{file_name}", 'wb'))
