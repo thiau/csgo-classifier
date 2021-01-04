@@ -82,7 +82,7 @@ def generate_models():
         team_name = team["team"]["name"]
 
         team_data = get_team_data(team_id, data)
-        print("Creating model for \x1b[1;31m{}\x1b[0m".format(team_name))
+        print("Creating model for \x1b[1;31m{} - {}\x1b[0m".format(team_name, team_id))
 
         ds = pd.DataFrame(team_data)
 
