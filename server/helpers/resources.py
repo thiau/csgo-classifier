@@ -9,16 +9,8 @@ def load_team_models(team_id):
     classifier = pickle.load(
         open(f"{Paths.RESOURCES_BASE_PATH.value}/models/classifiers/{team_id}.pickle", 'rb'))
     encoder = pickle.load(
-        open(f"{Paths.RESOURCES_BASE_PATH}/models/encoders/{team_id}.pickle", 'rb'))
+        open(f"{Paths.RESOURCES_BASE_PATH.value}/models/encoders/{team_id}.pickle", 'rb'))
     return classifier, encoder
-
-
-def get_match_prediction(team, oposite_team, game_map):
-    classifier, encoder = load_team_models(team.get("id"))
-    ds = [[oposite_team.get("name"), game_map]]
-    X = encoder.transform(ds).toarray()
-    y_pred = classifier.predict(X)
-    return y_pred
 
 
 def create_folders():
