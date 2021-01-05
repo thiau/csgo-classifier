@@ -3,31 +3,37 @@ import json
 import pickle
 import pandas as pd
 from server.helpers.classifier import Classifier
+from server.enums.resources import Paths
 
-# Base folders path
-resources_path = "server/resources"
-models_path = "server/resources/models"
+def load_team_models(team_id):
+    classifier = pickle.load(
+        open(f"{Paths.RESOURCES_BASE_PATH.value}/models/classifiers/{team_id}.pickle", 'rb'))
+    encoder = pickle.load(
+        open(f"{Paths.RESOURCES_BASE_PATH}/models/encoders/{team_id}.pickle", 'rb'))
+    return classifier, encoder
 
-# Folders path
-datasets_path = f"{resources_path}/datasets"
-encoders_path = f"{models_path}/encoders"
-classifiers_path = f"{models_path}/classifiers"
-team_data_path = f"{models_path}/team_data"
+
+def get_match_prediction(team, oposite_team, game_map):
+    classifier, encoder = load_team_models(team.get("id"))
+    ds = [[oposite_team.get("name"), game_map]]
+    X = encoder.transform(ds).toarray()
+    y_pred = classifier.predict(X)
+    return y_pred
 
 
 def create_folders():
-    os.makedirs(os.path.dirname(f"{datasets_path}/"), exist_ok=True)
-    os.makedirs(os.path.dirname(f"{encoders_path}/"), exist_ok=True)
-    os.makedirs(os.path.dirname(f"{classifiers_path}/"), exist_ok=True)
-    os.makedirs(os.path.dirname(f"{team_data_path}/"), exist_ok=True)
+    os.makedirs(os.path.dirname(f"{Paths.DATASETS_PATH.value}/"), exist_ok=True)
+    os.makedirs(os.path.dirname(f"{Paths.ENCODERS_PATH.value}/"), exist_ok=True)
+    os.makedirs(os.path.dirname(f"{Paths.CLASSIFIERS_PATH.value}/"), exist_ok=True)
+    os.makedirs(os.path.dirname(f"{Paths.TEAM_DATA_PATH.value}/"), exist_ok=True)
 
 def load_resources():
     data = None
-    with open(f"{datasets_path}/matches.json") as json_file:
+    with open(f"{Paths.DATASETS_PATH.value}/matches.json") as json_file:
         data = json.load(json_file)
 
     teams = None
-    with open(f"{datasets_path}/ranking.json") as json_file:
+    with open(f"{Paths.DATASETS_PATH.value}/ranking.json") as json_file:
         teams = json.load(json_file)
 
     return data, teams
@@ -36,7 +42,7 @@ def load_resources():
 def generate_csv_from_dict(data: dict, file_name: str):
     dataframe = pd.DataFrame(data)
     dataframe.to_csv(
-        f"{team_data_path}/{file_name}.csv",
+        f"{Paths.TEAM_DATA_PATH.value}/{file_name}.csv",
         sep=";",
         index=False)
 
@@ -97,6 +103,6 @@ def generate_models():
 
         file_name = f"{team_id}.pickle"
         pickle.dump(classifier_model,
-                    open(f"{models_path}/classifiers/{file_name}", 'wb'))
+                    open(f"{Paths.CLASSIFIERS_PATH.value}/{file_name}", 'wb'))
         pickle.dump(encoder_model,
-                    open(f"{models_path}/encoders/{file_name}", 'wb'))
+                    open(f"{Paths.ENCODERS_PATH.value}/{file_name}", 'wb'))
